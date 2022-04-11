@@ -10,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class TestPreferredDividendCalculator {
 
-
     @Test
     public void test_preferred_stock(){
         StockInfo info = new StockInfo();
@@ -19,6 +18,6 @@ public class TestPreferredDividendCalculator {
         info.setFixedDividend(3);
         PrefferedTypeDividendCalculator calculator = new PrefferedTypeDividendCalculator();
         double result = calculator.calculateDividendYield(info,100);
-        Assert.assertEquals(3,result);
+        Assert.assertEquals("Mismatch in result","3.0",String.valueOf(result));
     }
 }

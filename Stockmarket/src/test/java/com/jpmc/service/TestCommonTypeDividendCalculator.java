@@ -17,6 +17,6 @@ public class TestCommonTypeDividendCalculator {
         info.setLastDividend(5.0);
         info.setPer_value(100);
         double result =  commonTypeDividendCalculator.calculateDividendYield(info,100);
-        Assert.assertEquals(.05,result);
+        Assert.assertEquals("Mismatch in result","0.05",String.valueOf(result));
     }
 }
