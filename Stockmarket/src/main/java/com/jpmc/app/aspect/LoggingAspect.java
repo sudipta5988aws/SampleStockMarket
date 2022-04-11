@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -19,6 +20,8 @@ public class LoggingAspect
   @Around("@annotation(com.jpmc.app.annotation.TimeLoggable)")
   public Object logTimeTakenOfMethods(ProceedingJoinPoint proceedingJoinPoint) throws Throwable
   {
+    MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
+    log.info("calling method :{}",signature.getMethod().getName());
     final StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     Object result = proceedingJoinPoint.proceed();
