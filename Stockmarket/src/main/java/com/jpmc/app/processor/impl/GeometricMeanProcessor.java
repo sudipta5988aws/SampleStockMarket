@@ -79,7 +79,7 @@ public class GeometricMeanProcessor extends AbstractProcessor {
 			poll.setPercentage(COMPLETE);
 
 		}
-		polling.setModifiedDate(LocalDateTime.now());
+		poll.setModifiedDate(LocalDateTime.now());
 		return pollingService.save(poll);
 	}
 
