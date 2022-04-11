@@ -1,5 +1,6 @@
 package com.jpmc.app.controller;
 
+import com.jpmc.app.exception.ApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,7 +47,7 @@ public class StockInfoController {
 	 * @return dividend yield in double
 	 */
 	@RequestMapping(method = RequestMethod.GET , value = "/{code}/{price}/yield")
-	public double getDividendYield(@PathVariable(value="code") String code, @PathVariable(value="price") Double price) {
+	public double getDividendYield(@PathVariable(value="code") String code, @PathVariable(value="price") Double price) throws ApplicationException {
 		log.info("calculation dividend yield for stack code:{}",code);
 		return stockService.calculateDividendYield(code,price);
 	}
@@ -58,7 +59,7 @@ public class StockInfoController {
 	 * @return PE Ratio for a given stock and input price
 	 */
 	@RequestMapping(method = RequestMethod.GET , value = "/{code}/{price}/peRatio")
-	public double getPERatio(@PathVariable(value="code") String code, @PathVariable(value="price") Double price) {
+	public double getPERatio(@PathVariable(value="code") String code, @PathVariable(value="price") Double price) throws ApplicationException {
 		return stockService.calculatePERatio(code,price);		
 	}
 

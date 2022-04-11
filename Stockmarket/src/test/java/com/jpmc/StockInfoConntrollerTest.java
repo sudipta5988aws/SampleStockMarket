@@ -80,7 +80,6 @@ public class StockInfoConntrollerTest {
        mockMvc.perform(post("/exchange/cal/gm"))
                 .andExpect(status().isOk())
                         .andExpect(jsonPath("$.status").value("INPROGRESS"));
-
     }
 
 
