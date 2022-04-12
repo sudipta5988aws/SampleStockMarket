@@ -3,6 +3,7 @@ package com.jpmc.app.service.imp;
 import java.util.Objects;
 
 import com.jpmc.app.annotation.TimeLoggable;
+import com.jpmc.app.dao.StockServiceDAO;
 import com.jpmc.app.exception.ApplicationException;
 import com.jpmc.app.exception.ApplicationExceptionConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.dataobjects.StockTransaction;
 import com.jpmc.app.model.StockTradeDTO;
-import com.jpmc.app.repo.StockInfoRepository;
 import com.jpmc.app.repo.StockTransactionRepo;
 import com.jpmc.app.service.ITradingService;
 
@@ -30,7 +30,7 @@ import com.jpmc.app.service.ITradingService;
 public class BasicTradingService implements ITradingService{
 	
 	@Autowired
-	private StockInfoRepository stockInfoRepository;
+	private StockServiceDAO stockServiceDAO;
 	
 	@Autowired
 	private StockTransactionRepo stockTransactionRepo;
@@ -45,7 +45,7 @@ public class BasicTradingService implements ITradingService{
 	@TimeLoggable
 	public StockTransaction doTrading(StockTradeDTO tradeInfo) throws ApplicationException {
 		if(isValidRequest(tradeInfo)) {
-		   	StockInfo stock = stockInfoRepository.findByCode(tradeInfo.getStockCode().toUpperCase());
+		   	StockInfo stock = stockServiceDAO.fetchStock(tradeInfo.getStockCode().toUpperCase());
 		   	if(Objects.nonNull(stock)) {
 		   		   StockTransaction tradeData = new StockTransaction.StockTransactionBuilder().withStockInfo(stock).withTradeInfo(tradeInfo).build();
 				   log.info("Save trading for stock Code :{}",stock.getCode());

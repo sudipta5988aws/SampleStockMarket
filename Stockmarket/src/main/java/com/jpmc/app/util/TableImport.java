@@ -14,7 +14,6 @@ import com.jpmc.app.dataobjects.ApplicationProperty;
 import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.dataobjects.StockType;
 import com.jpmc.app.repo.ApplicationPropertyRepo;
-import com.jpmc.app.repo.StockInfoRepository;
 
 @Component
 public class TableImport {

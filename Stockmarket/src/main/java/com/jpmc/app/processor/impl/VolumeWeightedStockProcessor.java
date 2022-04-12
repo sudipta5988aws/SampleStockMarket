@@ -4,7 +4,6 @@ import com.jpmc.app.dao.StockServiceDAO;
 import com.jpmc.app.dataobjects.PollingStatus;
 import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.dataobjects.StockTransaction;
-import com.jpmc.app.repo.StockInfoRepository;
 import com.jpmc.app.repo.StockTransactionRepo;
 import com.jpmc.app.service.polling.IPollingService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,15 +13,12 @@ import org.springframework.stereotype.Component;
 
 import com.jpmc.app.dataobjects.Polling;
 import com.jpmc.app.processor.AbstractProcessor;
-import org.springframework.transaction.annotation.Propagation;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component("volumeStockProcessor")

@@ -29,4 +29,8 @@ public class StockServiceDAO{
 		
 	}
 
+	public List<StockInfo> getAllStocks(){
+		return infoRepository.findAll();
+	}
+
 }

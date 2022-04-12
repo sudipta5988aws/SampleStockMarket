@@ -1,10 +1,10 @@
 package com.jpmc.app.processor.impl;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import com.jpmc.app.dao.StockServiceDAO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,7 +14,6 @@ import com.jpmc.app.dataobjects.Polling;
 import com.jpmc.app.dataobjects.PollingStatus;
 import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.processor.AbstractProcessor;
-import com.jpmc.app.repo.StockInfoRepository;
 import com.jpmc.app.service.polling.IPollingService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ import javax.transaction.Transactional;
 public class GeometricMeanProcessor extends AbstractProcessor {
 	
 	@Autowired
-	private StockInfoRepository stockInfoRepository;
+	private StockServiceDAO stockServiceDAO;
 	
 	@Autowired
 	@Qualifier("mapBasedPoller")
@@ -52,7 +51,7 @@ public class GeometricMeanProcessor extends AbstractProcessor {
 		log.info("Start processing geometricMeanProcessor");
 		Polling poll = pollingService.fetch(polling.getId());
 		if(Objects.nonNull(poll)){
-			List<StockInfo> allStocks = stockInfoRepository.findAll();
+			List<StockInfo> allStocks = stockServiceDAO.getAllStocks();
 			if(CollectionUtils.isNotEmpty(allStocks)){
 				Double product = Double.valueOf(allStocks.stream().map(stock->stock.getCurrentPrice()).reduce(1.0,(item1,item2)->item1*item2));
 				Double result = Math.pow(product,1/allStocks.size());
