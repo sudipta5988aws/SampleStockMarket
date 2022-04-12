@@ -43,35 +43,41 @@ public class VolumeWeightedStockProcessor extends AbstractProcessor {
 	public Polling preProcess(Polling poll) {
 		log.info("Preprocess on the polling request:{}",poll.getId());
 		Polling polling = pollingService.fetch(poll.getId());
-		polling.setStatus(PollingStatus.INPROGRESS);
-		polling.setPercentage(INPROGRESS_PROCESS_PERCENTAGE);
-		polling.setModifiedDate(LocalDateTime.now());
-		return pollingService.save(polling);
+		if(Objects.nonNull(polling)){
+			polling.setStatus(PollingStatus.INPROGRESS);
+			polling.setPercentage(INPROGRESS_PROCESS_PERCENTAGE);
+			polling.setModifiedDate(LocalDateTime.now());
+			return pollingService.save(polling);
+		}
+		return null;
 	}
 
 	@Override
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public Polling process(Polling polling) {
 		Polling poll = pollingService.fetch(polling.getId());
-		log.info("Processing volumeStockProcessor :{}",poll.getId());
-		String stockCode = poll.getMetadata().split(":")[0];
-		long duration  = Long.parseLong(poll.getMetadata().split(":")[1]);
-		StockInfo stockInfo = stockServiceDAO.fetchStock(stockCode);
-		if(Objects.nonNull(stockInfo)){
-			LocalDateTime last5Minute = LocalDateTime.now().minusMinutes(duration);
-			List<StockTransaction> transactions = stockTransactionRepo.findByStockIdAndCreatedDuration(stockInfo.getId(),last5Minute);
-			Double result = calculate(transactions);
-			poll.setStatus(PollingStatus.PROCESSED);
-			poll.setPercentage(SUCCESS_PROCESS_PERCENTAGE);
-			poll.setResult(String.valueOf(result));
+		if(Objects.nonNull(poll)){
+			log.info("Processing volumeStockProcessor :{}",poll.getId());
+			String stockCode = poll.getMetadata().split(":")[0];
+			long duration  = Long.parseLong(poll.getMetadata().split(":")[1]);
+			StockInfo stockInfo = stockServiceDAO.fetchStock(stockCode);
+			if(Objects.nonNull(stockInfo)){
+				LocalDateTime last5Minute = LocalDateTime.now().minusMinutes(duration);
+				List<StockTransaction> transactions = stockTransactionRepo.findByStockIdAndCreatedDuration(stockInfo.getId(),last5Minute);
+				Double result = calculate(transactions);
+				poll.setStatus(PollingStatus.PROCESSED);
+				poll.setPercentage(SUCCESS_PROCESS_PERCENTAGE);
+				poll.setResult(String.valueOf(result));
+			}
+			else{
+				log.error("No Stock data found..");
+				poll.setStatus(PollingStatus.PROCESSED);
+				poll.setPercentage(FAILED_PROCESS_PERCENTAGE);
+			}
+			poll.setModifiedDate(LocalDateTime.now());
+			return pollingService.save(poll);
 		}
-		else{
-			log.error("No Stock data found..");
-			poll.setStatus(PollingStatus.PROCESSED);
-			poll.setPercentage(FAILED_PROCESS_PERCENTAGE);
-		}
-		poll.setModifiedDate(LocalDateTime.now());
-		return pollingService.save(poll);
+		return null;
 	}
 
 	private Double calculate(List<StockTransaction> transactions) {
@@ -84,17 +90,20 @@ public class VolumeWeightedStockProcessor extends AbstractProcessor {
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public Polling postProcess(Polling polling) {
 		Polling poll = pollingService.fetch(polling.getId());
-		if(Integer.valueOf(SUCCESS_PROCESS_PERCENTAGE).equals(poll.getPercentage())){
-			poll.setStatus(PollingStatus.SUCCESS);
-			poll.setPercentage(COMPLETE);
-		}
-		else if(Integer.valueOf(FAILED_PROCESS_PERCENTAGE).equals(poll.getPercentage())){
-			poll.setStatus(PollingStatus.CANCELLED);
-			poll.setPercentage(COMPLETE);
+		if(Objects.nonNull(poll)){
+			if(Integer.valueOf(SUCCESS_PROCESS_PERCENTAGE).equals(poll.getPercentage())){
+				poll.setStatus(PollingStatus.SUCCESS);
+				poll.setPercentage(COMPLETE);
+			}
+			else if(Integer.valueOf(FAILED_PROCESS_PERCENTAGE).equals(poll.getPercentage())){
+				poll.setStatus(PollingStatus.CANCELLED);
+				poll.setPercentage(COMPLETE);
 
+			}
+			poll.setModifiedDate(LocalDateTime.now());
+			return pollingService.save(poll);
 		}
-		poll.setModifiedDate(LocalDateTime.now());
-		return pollingService.save(poll);
+		return null;
 		
 	}
 
@@ -103,10 +112,13 @@ public class VolumeWeightedStockProcessor extends AbstractProcessor {
 	public Polling handleException(Exception e,Polling polling) {
 		log.error("Exception occured while calculating. Ex = ",e);
 		Polling poll = pollingService.fetch(polling.getId());
-		polling.setStatus(PollingStatus.FAILED);
-		polling.setPercentage(100);
-		polling.setModifiedDate(LocalDateTime.now());
-		return pollingService.save(poll);
+		if(Objects.nonNull(poll)){
+			polling.setStatus(PollingStatus.FAILED);
+			polling.setPercentage(100);
+			polling.setModifiedDate(LocalDateTime.now());
+			return pollingService.save(poll);
+		}
+		return null;
 	}
 
 }

@@ -24,5 +24,5 @@ public class TestStockCalculationService {
         StockCalculatorService service = new StockCalculatorService();
         service.calculatePERatio("ABC",0);
     }
-    
+
 }
