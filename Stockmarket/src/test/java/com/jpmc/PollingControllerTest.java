@@ -4,6 +4,10 @@ import com.jpmc.app.controller.PollingController;
 import com.jpmc.app.dataobjects.Polling;
 import com.jpmc.app.dataobjects.PollingStatus;
 import com.jpmc.app.exception.ApplicationException;
+import com.jpmc.app.repo.ApplicationPropertyRepo;
+import com.jpmc.app.repo.PollingRepo;
+import com.jpmc.app.repo.StockInfoRepository;
+import com.jpmc.app.repo.StockTransactionRepo;
 import com.jpmc.app.service.polling.impl.MapPollingService;
 import com.jpmc.app.service.polling.impl.PollingService;
 import org.apache.tomcat.jni.Poll;
@@ -12,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PollingController.class)
+@ComponentScan(basePackages = "com.jpmc")
 public class PollingControllerTest {
 
     @MockBean
@@ -33,6 +39,18 @@ public class PollingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    PollingRepo pollingRepo;
+
+    @MockBean
+    StockInfoRepository stockInfoRepository;
+
+    @MockBean
+    StockTransactionRepo stockTransactionRepo;
+
+    @MockBean
+    ApplicationPropertyRepo applicationPropertyRepo;
 
     @Test
     public void fetch_polling_data_test() throws Exception {
