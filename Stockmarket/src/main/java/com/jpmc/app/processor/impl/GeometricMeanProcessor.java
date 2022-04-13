@@ -53,8 +53,7 @@ public class GeometricMeanProcessor extends AbstractProcessor {
 		if(Objects.nonNull(poll)){
 			List<StockInfo> allStocks = stockServiceDAO.getAllStocks();
 			if(CollectionUtils.isNotEmpty(allStocks)){
-				Double product = Double.valueOf(allStocks.stream().map(stock->stock.getCurrentPrice()).reduce(1.0,(item1,item2)->item1*item2));
-				Double result = Math.pow(product,1/allStocks.size());
+				Double result = calculate(allStocks);
 				log.info("Geometric mean :{}",result);
 				poll.setStatus(PollingStatus.PROCESSED);
 				poll.setPercentage(SUCCESS_PROCESS_PERCENTAGE);
@@ -70,6 +69,11 @@ public class GeometricMeanProcessor extends AbstractProcessor {
 		}
 		return null;
 
+	}
+
+	private Double calculate(List<StockInfo> allStocks) {
+		Double product = Double.valueOf(allStocks.stream().map(stock->stock.getCurrentPrice()).reduce(1.0,(item1, item2)->item1*item2));
+		return Math.pow(product,1/ allStocks.size());
 	}
 
 	@Override
