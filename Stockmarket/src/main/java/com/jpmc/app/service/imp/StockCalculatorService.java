@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.jpmc.app.dao.StockServiceDAO;
 import com.jpmc.app.dataobjects.StockInfo;
-import com.jpmc.app.service.DividendCalculatorFactory;
+import com.jpmc.app.service.factory.DividendCalculatorFactory;
 import com.jpmc.app.service.IDividendYieldCalculator;
 import com.jpmc.app.service.IStockCalculatorService;
 

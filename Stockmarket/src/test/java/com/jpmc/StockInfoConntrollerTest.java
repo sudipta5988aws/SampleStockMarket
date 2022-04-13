@@ -2,14 +2,19 @@ package com.jpmc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmc.app.controller.StockInfoController;
+import com.jpmc.app.dao.StockServiceDAO;
 import com.jpmc.app.dataobjects.Polling;
 import com.jpmc.app.dataobjects.PollingStatus;
+import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.dataobjects.StockTransaction;
 import com.jpmc.app.exception.ApplicationException;
 import com.jpmc.app.model.StockTradeDTO;
 import com.jpmc.app.processor.AbstractProcessor;
 import com.jpmc.app.processor.impl.GeometricMeanProcessor;
 import com.jpmc.app.processor.impl.VolumeWeightedStockProcessor;
+import com.jpmc.app.repo.ApplicationPropertyRepo;
+import com.jpmc.app.repo.PollingRepo;
+import com.jpmc.app.repo.StockTransactionRepo;
 import com.jpmc.app.service.DataProcessor;
 import com.jpmc.app.service.imp.StockCalculatorService;
 import org.junit.Assert;
@@ -19,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,9 +41,23 @@ import static org.springframework.web.servlet.function.RequestPredicates.content
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(StockInfoController.class)
+@ComponentScan(basePackages = {"com.jpmc.*"})
 public class StockInfoConntrollerTest {
+
     @MockBean
     StockCalculatorService stockCalculatorService;
+
+    @MockBean
+    StockServiceDAO stockServiceDAO;
+
+    @MockBean
+    StockTransactionRepo stockTransactionRepo;
+
+    @MockBean
+    PollingRepo pollingRepo;
+
+    @MockBean
+    ApplicationPropertyRepo applicationPropertyRepo;
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,6 +76,7 @@ public class StockInfoConntrollerTest {
     @Test
     public void test_dividend_yield() throws Exception {
         when(stockCalculatorService.calculateDividendYield(any(String.class),any(Double.class))).thenReturn(2.0);
+        when(stockServiceDAO.fetchStock(any(String.class))).thenReturn(new StockInfo());
         String returnValue = mockMvc.perform(get("/exchange/TEA/150/yield"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -63,12 +84,13 @@ public class StockInfoConntrollerTest {
 
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test
     public void test_dividend_yield_withException() throws Exception {
         when(stockCalculatorService.calculateDividendYield(any(String.class),any(Double.class))).thenThrow(new ApplicationException(500,"INTERNAL SERVER_ERROR"));
-        String returnValue = mockMvc.perform(get("/exchange/TEA/150/yield"))
+        when(stockServiceDAO.fetchStock(any(String.class))).thenReturn(new StockInfo());
+        mockMvc.perform(get("/exchange/TEA/150/yield"))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("$.errorMessage").value("INTERNAL SERVER_ERROR"));
     }
 
     @Test
@@ -76,7 +98,7 @@ public class StockInfoConntrollerTest {
         Polling polling = new Polling();
         polling.setStatus(PollingStatus.INPROGRESS);
         polling.setPercentage(10);
-        when(dataProcessor.doWork(any(String.class),volumeStockProcessor)).thenReturn(polling );
+        when(dataProcessor.doWork(any(String.class),any(AbstractProcessor.class))).thenReturn(polling);
        mockMvc.perform(post("/exchange/cal/gm"))
                 .andExpect(status().isOk())
                         .andExpect(jsonPath("$.status").value("INPROGRESS"));
@@ -93,12 +115,13 @@ public class StockInfoConntrollerTest {
 
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test
     public void test_pe_ratio_with_exception() throws Exception {
         when(stockCalculatorService.calculatePERatio(any(String.class),any(Double.class))).thenThrow(new ApplicationException(400,"BAD REQUEST"));
-        String returnValue = mockMvc.perform(get("/exchange/TEA/150/peRatio"))
+        mockMvc.perform(get("/exchange/TEA/150/peRatio"))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("$.errorMessage").value("BAD REQUEST"));
+
 
     }
 

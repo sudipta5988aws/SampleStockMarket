@@ -3,6 +3,7 @@ package com.jpmc.app.dao;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.repo.StockInfoRepository;
@@ -17,20 +18,20 @@ import com.jpmc.app.repo.StockInfoRepository;
 public class StockServiceDAO{
 	
 	@Autowired
-	private StockInfoRepository infoRepository;
+	private StockInfoRepository stockInfoRepository;
 
 	@Transactional
 	public List<StockInfo> createStocks(List<StockInfo> stocks) {	
-	       return (List<StockInfo>) infoRepository.saveAll(stocks);
+	       return (List<StockInfo>) stockInfoRepository.saveAll(stocks);
 	}
 
 	public StockInfo fetchStock(String stockCode) {
-		return infoRepository.findByCode(stockCode.toUpperCase());
+		return stockInfoRepository.findByCode(stockCode.toUpperCase());
 		
 	}
 
 	public List<StockInfo> getAllStocks(){
-		return infoRepository.findAll();
+		return stockInfoRepository.findAll();
 	}
 
 }

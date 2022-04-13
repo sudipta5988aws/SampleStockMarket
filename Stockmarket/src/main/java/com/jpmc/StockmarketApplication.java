@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @Slf4j
 @SpringBootApplication
-@ComponentScan(basePackages = "com.jpmc")
+@ComponentScan(basePackages = {"com.jpmc"})
 public class StockmarketApplication {
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(StockmarketApplication.class, args);

@@ -41,21 +41,25 @@ public class ExceptionHandlerListener {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
+    @ResponseBody
     public ErrorResponseDTO handleError(NoSuchElementException e, HttpServletResponse response){
         return new ErrorResponseDTO(true,Integer.toString(HttpStatus.NOT_FOUND.value()),e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseBody
     public ErrorResponseDTO handleError(IllegalArgumentException e, HttpServletResponse response){
         return new ErrorResponseDTO(true,Integer.toString(HttpStatus.BAD_REQUEST.value()),e.getMessage());
     }
 
     @ExceptionHandler(ApplicationException.class)
+    @ResponseBody
     public ErrorResponseDTO handleError(ApplicationException e, HttpServletResponse response){
         return new ErrorResponseDTO(true,e.getErrorCode().toString(),e.getErrorMessage());
     }
 
     @ExceptionHandler(Exception.class)
+    @ResponseBody
     public ErrorResponseDTO handleError(Exception e, HttpServletResponse response){
         return new ErrorResponseDTO(true,Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),e.getMessage());
     }
