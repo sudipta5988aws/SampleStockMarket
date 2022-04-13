@@ -1,19 +1,23 @@
 package com.jpmc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpmc.app.controller.PollingController;
 import com.jpmc.app.controller.TradeController;
+import com.jpmc.app.dao.StockServiceDAO;
 import com.jpmc.app.dataobjects.StockInfo;
 import com.jpmc.app.dataobjects.StockTransaction;
 import com.jpmc.app.dataobjects.TransactionType;
-import com.jpmc.app.exception.ApplicationException;
 import com.jpmc.app.model.StockTradeDTO;
+import com.jpmc.app.repo.ApplicationPropertyRepo;
+import com.jpmc.app.repo.PollingRepo;
+import com.jpmc.app.repo.StockInfoRepository;
+import com.jpmc.app.repo.StockTransactionRepo;
 import com.jpmc.app.service.imp.BasicTradingService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(TradeController.class)
+@ComponentScan(basePackages = "com.jpmc")
 public class TradeControllerTest {
 
     @Autowired
@@ -34,6 +39,21 @@ public class TradeControllerTest {
     @MockBean
     BasicTradingService tradingService;
 
+    @MockBean
+    StockServiceDAO stockServiceDAO;
+
+    @MockBean
+    StockInfoRepository stockInfoRepository;
+
+    @MockBean
+    PollingRepo pollingRepo;
+
+    @MockBean
+    StockTransactionRepo stockTransactionRepo;
+
+    @MockBean
+    ApplicationPropertyRepo applicationPropertyRepo;
+
     @Test
     public void test_trade() throws Exception {
         StockTransaction transaction = getStockTransaction();
@@ -41,7 +61,7 @@ public class TradeControllerTest {
         mockMvc.perform(post("/exchange/trade").contentType(MediaType.APPLICATION_JSON).content(new ObjectMapper().writeValueAsString(transaction)))
                 .andExpect(status().isOk()).
                 andExpect(jsonPath("$.stock_info_id").value(transaction.getStock_info_id()));
-        
+
     }
 
     private StockTransaction getStockTransaction() {
