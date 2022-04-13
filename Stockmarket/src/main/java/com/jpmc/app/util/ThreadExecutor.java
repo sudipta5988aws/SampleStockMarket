@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,13 @@ public class ThreadExecutor {
 			return executor;
 		}
 		return executor;
+	}
+
+	@PreDestroy
+	public void shutdown(){
+		if(Objects.nonNull(executor)){
+			executor.shutdown();
+		}
 	}
 
 }
