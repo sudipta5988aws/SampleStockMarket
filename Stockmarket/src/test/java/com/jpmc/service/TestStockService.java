@@ -10,21 +10,27 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.TestContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 @RunWith(SpringRunner.class)
+@ComponentScan(basePackages = "com.jpmc")
 public class TestStockService {
 
     @MockBean
     StockInfoRepository stockInfoRepository;
 
     @Autowired
-    StockServiceDAO dao;
+    private ApplicationContext context;
 
     @Test
     public void test_fetch_stockinfo(){
@@ -35,7 +41,7 @@ public class TestStockService {
         data.setId("ABC");
         data.setPer_value(100);
         data.setLastDividend(30.0);
-
+        StockServiceDAO dao = context.getBean(StockServiceDAO.class);
         when(stockInfoRepository.getById(any(String.class))).thenReturn(data);
         StockInfo result = dao.fetchStock("ABC");
         Assert.assertEquals("Data are not equal","ABC",result.getId());
